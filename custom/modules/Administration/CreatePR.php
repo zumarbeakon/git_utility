@@ -144,6 +144,47 @@ function runCommand($command)
         $status = trim(proc_close($resource));
         if ($status) {
 			// Log stdout and stderr
+			$checkoutBranchCommand = "git checkout dev";
+			runCommandDev($checkoutBranchCommand);
+			//Git Stash Apply
+			$stashCommandApply="git stash apply";
+			runCommandDev($stashCommandApply);
+            echo $stderr;
+            throw new Exception("Command failed with status $status. Stderr: $stderr. Stdout: $stdout");
+        }
+        return $stdout;
+    } else {
+        throw new Exception("proc_open failed for command: $command");
+    }
+}
+
+// Execute Git commands
+function runCommandDev($command)
+{
+	global $sugar_config;
+    $descriptorspec = [
+        1 => ['pipe', 'w'],
+        2 => ['pipe', 'w'],
+    ];
+    $pipes = [];
+    $cwd = $sugar_config['gitrepo']; // Set your repo path here
+    $env = NULL;
+
+    // Log the command being executed
+    error_log("Executing command: $command");
+
+    $resource = proc_open($command, $descriptorspec, $pipes, $cwd, $env);
+
+    if (is_resource($resource)) {
+        $stdout = stream_get_contents($pipes[1]);
+        $stderr = stream_get_contents($pipes[2]);
+
+        foreach ($pipes as $pipe) {
+            fclose($pipe);
+        }
+        $status = trim(proc_close($resource));
+        if ($status) {
+			// Log stdout and stderr
             echo $stderr;
             throw new Exception("Command failed with status $status. Stderr: $stderr. Stdout: $stdout");
         }
