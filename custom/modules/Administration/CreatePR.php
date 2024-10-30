@@ -150,9 +150,12 @@ function runCommand($command)
 			//Git Stash Apply
 			$stashCommandApply="git stash apply";
 			runCommandDev($stashCommandApply);
+<<<<<<< Updated upstream
 	
 			runCommandDev("git branch -D $newBranch",true);
 
+=======
+>>>>>>> Stashed changes
             echo $stderr;
             throw new Exception("Command failed with status $status. Stderr: $stderr. Stdout: $stdout");
         }
