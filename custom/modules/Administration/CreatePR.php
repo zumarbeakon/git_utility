@@ -42,8 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	runCommand("git remote set-url origin https://{$userName}:{$token}@github.com/$owner/$repo.git");
 	
 	//Git Stash
-	$stashCommand="git stash";
-	runCommand($stashCommand);
+	// Check if stashing is necessary
+	if (hasUncommittedChanges()) {
+		$stashCommand = "git stash";
+		runCommand($stashCommand);
+	}
 	
 	$checkoutBranchCommand = "git checkout master";
     runCommand($checkoutBranchCommand);
@@ -80,9 +83,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     runCommand($checkoutBranchCommand);
 	
 	//Git Stash Apply
-	$stashCommandApply="git stash apply";
-	
-	runCommand($stashCommandApply);
+	// Check if there are any stashes to apply
+	if (hasStashes()) {
+		$stashCommandApply = "git stash apply";
+		runCommand($stashCommandApply);
+	}
 	
     // Create a pull request
     $data = array(
@@ -148,8 +153,11 @@ function runCommand($command)
 			$checkoutBranchCommand = "git checkout dev";
 			runCommandDev($checkoutBranchCommand);
 			//Git Stash Apply
-			$stashCommandApply="git stash apply";
-			runCommandDev($stashCommandApply);
+			// Check if there are any stashes to apply
+			if (hasStashes()) {
+				$stashCommandApply = "git stash apply";
+				runCommandDev($stashCommandApply);
+			}
 
 			runCommandDev("git branch -D $newBranch",true);
 			
@@ -247,5 +255,27 @@ function verifyGitTokenAndUsername($token, $expectedUsername) {
     } else {
         return false; // Token is invalid
     }
-} 
+}
+
+function hasUncommittedChanges() {
+    $statusOutput = runCommand("git diff --exit-code");
+    $stagedOutput = runCommand("git diff --cached --exit-code");
+
+    // If either command has output, there are uncommitted changes
+    if (!empty($statusOutput) || !empty($stagedOutput)) {
+        return true;
+    }
+    return false;
+}
+
+function hasStashes() {
+    $stashListOutput = runCommandDev("git stash list");
+
+    // If there's any output, it means there are stashes available
+    if (!empty($stashListOutput)) {
+        return true;
+    }
+    return false;
+}
+ 
 ?>
