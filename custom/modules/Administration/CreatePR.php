@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Execute Git commands
 function runCommand($command)
 {
-	global $sugar_config;
+	global $sugar_config,$newBranch;
     $descriptorspec = [
         1 => ['pipe', 'w'],
         2 => ['pipe', 'w'],
