@@ -155,7 +155,7 @@ function runCommand($command)
 // Verify the provided username, token, and repository access
 function verifyGitTokenAndUsername($token, $expectedUsername) {
 	global $sugar_config;
-    $repositoryOwner = 'beakon123';
+    $repositoryOwner = $sugar_config['git_repo_owner'];
 	$repositoryName = $sugar_config['git_repo_nme'];
 	// Verify the token and username first
     $url = "https://api.github.com/user";
