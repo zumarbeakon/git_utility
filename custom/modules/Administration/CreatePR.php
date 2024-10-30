@@ -152,6 +152,7 @@ function runCommand($command)
 			runCommandDev($stashCommandApply);
 	
 			runCommandDev("git branch -D $newBranch",true);
+
             echo $stderr;
             throw new Exception("Command failed with status $status. Stderr: $stderr. Stdout: $stdout");
         }
