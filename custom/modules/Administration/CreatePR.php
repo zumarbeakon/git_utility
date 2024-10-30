@@ -25,7 +25,7 @@ if(!defined('sugarEntry') || !sugarEntry) die('Not A Valid Entry Point');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	if (verifyGitTokenAndUsername($_REQUEST['git_token'], $_REQUEST['git_usersname'])) {
-	global $sugar_config;
+	global $sugar_config,$newBranch;
 	// Retrieve GitHub username and token from POST request.
     $userName = $_POST['git_usersname'];
     $token = $_POST['git_token'];
@@ -36,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $base = 'master'; // the branch you want to merge into
     $head = substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 8); // the new branch with selected commits	
 	$head = $repo."_".$head;
+	$newBranch = $head;
 	runCommand($sugar_config['GITHome']." git config --global user.email 'info@beakon.com.au'");
 	runCommand($sugar_config['GITHome']." git config --global user.name '{userName}'");
 	runCommand("git remote set-url origin https://{$userName}:{$token}@github.com/$owner/$repo.git");
@@ -149,6 +150,8 @@ function runCommand($command)
 			//Git Stash Apply
 			$stashCommandApply="git stash apply";
 			runCommandDev($stashCommandApply);
+			
+			runCommandDev("git branch -D $newBranch",true);
             echo $stderr;
             throw new Exception("Command failed with status $status. Stderr: $stderr. Stdout: $stdout");
         }
